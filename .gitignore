@@ -1,0 +1,9 @@
+.cache
+.xmake
+
+build/
+vendor/
+
+compile_commands.json
+
+!/**/.gitkeep
