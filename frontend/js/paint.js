@@ -5,11 +5,17 @@ function onPaint(x, y) {
     case 'none':
       break
     case 'starting':
+      if (['starting', 'destination'].includes(grid.data[y][x].type)) {
+        return
+      }
       grid.set(startingPos.x, startingPos.y, new Tile())
       grid.set(x, y, new Tile('starting'))
       jsonMapData.startingPoint = { x: x, y: y }
       break
     case 'destination':
+      if (['starting', 'destination'].includes(grid.data[y][x].type)) {
+        return
+      }
       grid.set(destinationPos.x, destinationPos.y, new Tile())
       grid.set(x, y, new Tile('destination'))
       jsonMapData.destinationPoint = { x: x, y: y }
