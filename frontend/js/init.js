@@ -80,6 +80,9 @@ function getPathJson(callback) {
   getData('/get_path_json')
     .then((response) => response.json())
     .then(json => {
+      // remove first and last element
+      json.shift()
+      json.pop()
       jsonPathData = json
       callback && callback()
     }).catch(function (e) {
