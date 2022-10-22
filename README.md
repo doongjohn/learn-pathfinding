@@ -12,3 +12,5 @@ xmake
 ```
 xmake r
 ```
+
+connect to `http://localhost:3000`
