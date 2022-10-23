@@ -1,21 +1,23 @@
+function onErase(x, y) {
+  grid.set(x, y, new Tile())
+  jsonMapData.extra_cost[y][x] = 0
+  jsonMapData.walkable[y][x] = true
+}
+
 function onPaint(x, y) {
-  const startingPos = jsonMapData.startingPoint
-  const destinationPos = jsonMapData.destinationPoint
   switch (paintMode) {
-    case 'none':
+    case '':
       break
     case 'starting':
-      if (['starting', 'destination'].includes(grid.data[y][x].type)) {
-        return
-      }
+      const startingPos = jsonMapData.startingPoint
+      onErase(startingPos.x, startingPos.y)
       grid.set(startingPos.x, startingPos.y, new Tile())
       grid.set(x, y, new Tile('starting'))
       jsonMapData.startingPoint = { x: x, y: y }
       break
     case 'destination':
-      if (['starting', 'destination'].includes(grid.data[y][x].type)) {
-        return
-      }
+      const destinationPos = jsonMapData.destinationPoint
+      onErase(destinationPos.x, destinationPos.y)
       grid.set(destinationPos.x, destinationPos.y, new Tile())
       grid.set(x, y, new Tile('destination'))
       jsonMapData.destinationPoint = { x: x, y: y }
@@ -37,15 +39,6 @@ function onPaint(x, y) {
   }
 }
 
-function onErase(x, y) {
-  if (['starting', 'destination'].includes(grid.data[y][x].type)) {
-    return
-  }
-  grid.set(x, y, new Tile('none'))
-  jsonMapData.extra_cost[y][x] = 0
-  jsonMapData.walkable[y][x] = true
-}
-
 function onGridClick(mouseX, mouseY) {
   const canvasPos = screenToCanvasPosition(mouseX, mouseY)
   const gridPos = grid.canvasToGridPos(canvasPos.x, canvasPos.y)
@@ -57,6 +50,11 @@ function onGridClick(mouseX, mouseY) {
   path.forEach((x, y) => {
     path.data[y][x] = false
   })
+
+  if (['starting', 'destination'].includes(grid.data[gridPos.y][gridPos.x].type)) {
+    // do not override starting or destination position
+    return
+  }
 
   if (mouseButton === 0) {
     onPaint(gridPos.x, gridPos.y)

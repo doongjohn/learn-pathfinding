@@ -52,7 +52,7 @@ async function getData(url = '') {
 
 let jsonMapData = null
 let jsonPathData = null
-let paintMode = 'none'
+let paintMode = ''
 
 function getMapJson(callback) {
   getData('/get_map_json')

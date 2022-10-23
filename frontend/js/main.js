@@ -12,7 +12,7 @@ function waitInit() {
       const extraCost = jsonMapData.extra_cost[y][x]
       const walkable = jsonMapData.walkable[y][x]
       if (extraCost == 0) {
-        grid.set(x, y, new Tile('none'))
+        grid.set(x, y, new Tile())
       } else if (extraCost == 20) {
         grid.set(x, y, new Tile('grass'))
       } else if (extraCost == 50) {

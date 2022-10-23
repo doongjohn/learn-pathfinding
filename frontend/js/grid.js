@@ -115,7 +115,7 @@ class Grid {
 }
 
 class Tile {
-  constructor(type = 'none') {
+  constructor(type = '') {
     this.type = type
   }
 }
@@ -149,7 +149,7 @@ const grid = new Grid(10, 10, new Tile(), {
   },
   tileText: (...[, , tile]) => {
     switch (tile.type) {
-      case 'none':
+      case '':
         return ''
       case 'starting':
         return '🤖'

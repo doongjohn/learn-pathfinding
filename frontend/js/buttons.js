@@ -17,7 +17,7 @@ btnReset.addEventListener('click', () => {
         if (['starting', 'destination'].includes(grid.data[y][x].type)) {
           return
         }
-        grid.data[y][x] = new Tile('none')
+        grid.data[y][x] = new Tile()
       })
     }
   }
