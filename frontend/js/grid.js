@@ -114,12 +114,6 @@ class Grid {
   }
 }
 
-class Tile {
-  constructor(type = '') {
-    this.type = type
-  }
-}
-
 let grid = null
 let path = null
 
@@ -141,10 +135,10 @@ const initPath = (width, height) => {
 }
 
 const initGrid = (width, height) => {
-  grid = new Grid(width, height, new Tile(), {
+  grid = new Grid(width, height, '', {
     gap: 4,
     tileColor: (...[, , tile]) => {
-      switch (tile.type) {
+      switch (tile) {
         case 'grass':
           return '#86d72f'
         case 'water':
@@ -154,7 +148,7 @@ const initGrid = (width, height) => {
       }
     },
     tileText: (...[, , tile]) => {
-      switch (tile.type) {
+      switch (tile) {
         case '':
           return ''
         case 'starting':

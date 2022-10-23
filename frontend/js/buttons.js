@@ -15,10 +15,10 @@ btnReset.addEventListener('click', () => {
       jsonMapData.extraCost[y][x] = 0
       jsonMapData.walkable[y][x] = true
       grid.forEach((x, y) => {
-        if (['starting', 'destination'].includes(grid.data[y][x].type)) {
+        if (['starting', 'destination'].includes(grid.data[y][x])) {
           return
         }
-        grid.data[y][x] = new Tile()
+        grid.data[y][x] = ''
       })
     }
   }

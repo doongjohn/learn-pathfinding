@@ -16,20 +16,20 @@ function waitInit() {
       const extraCost = jsonMapData.extraCost[y][x]
       const walkable = jsonMapData.walkable[y][x]
       if (extraCost == 0) {
-        grid.set(x, y, new Tile())
+        grid.set(x, y, '')
       } else if (extraCost == 20) {
-        grid.set(x, y, new Tile('grass'))
+        grid.set(x, y, 'grass')
       } else if (extraCost == 50) {
-        grid.set(x, y, new Tile('water'))
+        grid.set(x, y, 'water')
       }
       if (walkable == false) {
-        grid.set(x, y, new Tile('wall'))
+        grid.set(x, y, 'wall')
       }
     })
     const startingPos = jsonMapData.startingPoint
     const destinationPos = jsonMapData.destinationPoint
-    grid.set(startingPos.x, startingPos.y, new Tile('starting'))
-    grid.set(destinationPos.x, destinationPos.y, new Tile('destination'))
+    grid.set(startingPos.x, startingPos.y, 'starting')
+    grid.set(destinationPos.x, destinationPos.y, 'destination')
 
     // start loop
     loop()

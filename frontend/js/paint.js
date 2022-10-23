@@ -1,5 +1,5 @@
 function onErase(x, y) {
-  grid.set(x, y, new Tile())
+  grid.set(x, y, '')
   jsonMapData.extraCost[y][x] = 0
   jsonMapData.walkable[y][x] = true
 }
@@ -11,27 +11,27 @@ function onPaint(x, y) {
     case 'starting':
       const startingPos = jsonMapData.startingPoint
       onErase(startingPos.x, startingPos.y)
-      grid.set(startingPos.x, startingPos.y, new Tile())
-      grid.set(x, y, new Tile('starting'))
+      grid.set(startingPos.x, startingPos.y, '')
+      grid.set(x, y, 'starting')
       jsonMapData.startingPoint = { x: x, y: y }
       break
     case 'destination':
       const destinationPos = jsonMapData.destinationPoint
       onErase(destinationPos.x, destinationPos.y)
-      grid.set(destinationPos.x, destinationPos.y, new Tile())
-      grid.set(x, y, new Tile('destination'))
+      grid.set(destinationPos.x, destinationPos.y, '')
+      grid.set(x, y, 'destination')
       jsonMapData.destinationPoint = { x: x, y: y }
       break
     case 'wall':
-      grid.set(x, y, new Tile('wall'))
+      grid.set(x, y, 'wall')
       jsonMapData.walkable[y][x] = false
       break
     case 'grass':
-      grid.set(x, y, new Tile('grass'))
+      grid.set(x, y, 'grass')
       jsonMapData.extraCost[y][x] = 20
       break
     case 'water':
-      grid.set(x, y, new Tile('water'))
+      grid.set(x, y, 'water')
       jsonMapData.extraCost[y][x] = 50
       break
     default:
@@ -51,7 +51,7 @@ function onGridClick(mouseX, mouseY) {
     path.data[y][x] = false
   })
 
-  if (['starting', 'destination'].includes(grid.data[gridPos.y][gridPos.x].type)) {
+  if (['starting', 'destination'].includes(grid.data[gridPos.y][gridPos.x])) {
     // do not override starting or destination position
     return
   }
