@@ -1,6 +1,6 @@
 # learn-pathfinding
 
-![image](https://user-images.githubusercontent.com/40219740/197388895-b738540a-14bd-4a3c-aeac-a5685de91fe5.png)
+![image](https://user-images.githubusercontent.com/40219740/197398571-f2fb7f06-a787-4324-aeec-512fb9fbed2f.png)
 
 ## build
 
