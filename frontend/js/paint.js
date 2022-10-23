@@ -65,17 +65,21 @@ function onGridClick(mouseX, mouseY) {
 
 let mouseDown = false
 let mouseButton = 0
+
+window.addEventListener('blur', () => {
+  mouseDown = false
+})
+
+window.addEventListener('mouseup', () => {
+  mouseDown = false
+})
+
 window.addEventListener('mousedown', (mouseEvent) => {
   mouseDown = true
   mouseButton = mouseEvent.button
   onGridClick(mouseEvent.x, mouseEvent.y)
 })
-window.addEventListener('mouseup', () => {
-  mouseDown = false
-})
-window.addEventListener('blur', () => {
-  mouseDown = false
-})
+
 canvas.addEventListener('mousemove', (mouseEvent) => {
   if (!mouseDown) {
     return
