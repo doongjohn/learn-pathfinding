@@ -64,7 +64,7 @@ class Grid {
     })
   }
 
-  canvasCenter() {
+  centerTopLeft() {
     return {
       x: canvas.width / 2 - (this.tileWidth * this.width) / 2,
       y: canvas.height / 2 - (this.tileHeight * this.height) / 2,
@@ -83,9 +83,13 @@ class Grid {
     }
     return result
   }
+  screenToGridPos(x, y) {
+    const canvasPos = screenToCanvasPosition(x, y)
+    return this.canvasToGridPos(canvasPos.x, canvasPos.y)
+  }
   gridToCanvasPos(x, y) {
     this.bound_check(x, y)
-    const center = this.canvasCenter()
+    const center = this.centerTopLeft()
     return {
       x: center.x + x * this.tileWidth,
       y: center.y + y * this.tileHeight,
@@ -93,8 +97,9 @@ class Grid {
   }
 
   draw() {
-    const center = this.canvasCenter()
+    const center = this.centerTopLeft()
     this.forEach((x, y) => {
+      // draw tile
       ctx.fillStyle = this.tileColor(x, y, this.data[y][x])
       ctx.fillRect(
         center.x + x * this.tileWidth,
@@ -102,6 +107,7 @@ class Grid {
         this.tileWidth - this.gap,
         this.tileHeight - this.gap
       )
+      // draw text
       ctx.fillStyle = '#ffffff'
       ctx.font = '30px Arial';
       ctx.textAlign = 'center'
@@ -121,7 +127,7 @@ const initPath = (width, height) => {
   path = new Grid(width, height, false, {
     gap: 4,
     tileColor: (...[, , ]) => {
-      return 'rgba(0, 0, 0, 0.0)'
+      return 'rgba(0, 0, 0, 0.0)' // transparent
     },
     tileText: (...[, , tile]) => {
       switch (tile) {

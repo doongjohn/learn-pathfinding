@@ -51,6 +51,7 @@ inline Neighbors PathFinder::get_neighbors(Point pos) {
   result.nodes[6] = Node(-1, -1);
   result.nodes[7] = Node(-1, -1);
 
+  // check blocked corner
   if ((is_in_bounds(result.nodes[0].pos) && game_map.get_walkable(result.nodes[0].pos)) ||
       (is_in_bounds(result.nodes[2].pos) && game_map.get_walkable(result.nodes[2].pos))) {
     result.nodes[4] = Node(pos.x + 1, pos.y + 1);
@@ -81,7 +82,7 @@ inline std::vector<Point> PathFinder::dijkstra(Point start, Point dest) {
     return {};
   }
 
-  std::vector<Point> path;
+  std::vector<Point> path; // final path
   std::unordered_map<Point, Node> node_lookup; // store explored node data
   Array2D<bool> visited(game_map.width, game_map.height);
   visited.set_all(false);
@@ -108,10 +109,11 @@ inline std::vector<Point> PathFinder::dijkstra(Point start, Point dest) {
         path.push_back(parent.pos);
         parent = node_lookup[parent.parent_pos];
         if (parent.pos == start) {
-          path.push_back(parent.pos); // add starting position
+          path.push_back(parent.pos); // add starting point
           break;
         }
       }
+      // reverse it to make the path start from the starting point
       std::reverse(path.begin(), path.end());
       return path;
     }

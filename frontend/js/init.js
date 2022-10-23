@@ -99,4 +99,5 @@ getData('/get_map_json')
   }).catch(function (e) {
     console.error(e)
     console.error('get_map_json failed')
+    alert('Failed to load initial map data!\nPlease check the server status and reload the page.')
   })

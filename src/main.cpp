@@ -65,7 +65,7 @@ void start_server(GameData &data) {
 }
 
 int main() {
-  GameData data(10, 10);
+  GameData data(20, 20);
   start_server(data);
   return 0;
 }

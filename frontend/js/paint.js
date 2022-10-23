@@ -5,9 +5,15 @@ function onErase(x, y) {
 }
 
 function onPaint(x, y) {
+  if (paintMode === '') {
+    return
+  }
+
+  // remove existing tile
+  onErase(x, y)
+
+  // paint new tile
   switch (paintMode) {
-    case '':
-      break
     case 'starting':
       const startingPos = jsonMapData.startingPoint
       onErase(startingPos.x, startingPos.y)
@@ -40,16 +46,15 @@ function onPaint(x, y) {
 }
 
 function onGridClick(mouseX, mouseY) {
-  const canvasPos = screenToCanvasPosition(mouseX, mouseY)
-  const gridPos = grid.canvasToGridPos(canvasPos.x, canvasPos.y)
+  const gridPos = grid.screenToGridPos(mouseX, mouseY)
+
+  // check bounds
   if (!grid.is_in_bounds(gridPos.x, gridPos.y)) {
     return
   }
 
   // reset path
-  path.forEach((x, y) => {
-    path.data[y][x] = false
-  })
+  path.set_all(false)
 
   if (['starting', 'destination'].includes(grid.data[gridPos.y][gridPos.x])) {
     // do not override starting or destination position

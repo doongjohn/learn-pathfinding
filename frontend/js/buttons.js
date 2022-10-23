@@ -10,36 +10,34 @@ const btnWater = document.getElementById('btn-water')
 
 btnReset.addEventListener('click', () => {
   // reset grid
-  for (let y = 0; y < 10; ++y) {
-    for (let x = 0; x < 10; ++x) {
-      jsonMapData.extraCost[y][x] = 0
-      jsonMapData.walkable[y][x] = true
-      grid.forEach((x, y) => {
-        if (['starting', 'destination'].includes(grid.data[y][x])) {
-          return
-        }
-        grid.data[y][x] = ''
-      })
+  grid.forEach((x, y) => {
+    jsonMapData.extraCost[y][x] = 0
+    jsonMapData.walkable[y][x] = true
+    if (['starting', 'destination'].includes(grid.data[y][x])) {
+      return
     }
-  }
-  // reset path
-  path.forEach((x, y) => {
-    path.data[y][x] = false
+    grid.data[y][x] = ''
   })
+
+  // reset path
+  path.set_all(false)
+
+  // post map data to the server
   postMapJson()
 })
 
 btnFindPath.addEventListener('click', () => {
+  // post map data to the server
   postMapJson(() => {
+    // get path data from the server
     getPathJson(() => {
       // reset path
-      path.forEach((x, y) => {
-        path.data[y][x] = false
-      })
+      path.set_all(false)
+
+      // apply fetched path
       if (jsonPathData.length == 0) {
-        alert('there is no path!')
+        alert('There is no valid path!')
       } else {
-        // apply fetched path
         for (let p of jsonPathData) {
           path.data[p.y][p.x] = true
         }
