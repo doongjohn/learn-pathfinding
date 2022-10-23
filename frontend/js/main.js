@@ -7,9 +7,13 @@ function loop() {
 
 function waitInit() {
   if (jsonMapData !== null) {
+    // init grid
+    initPath(jsonMapData.gridWidth, jsonMapData.gridHeight)
+    initGrid(jsonMapData.gridWidth, jsonMapData.gridHeight)
+
     // init map data
     grid.forEach((x, y) => {
-      const extraCost = jsonMapData.extra_cost[y][x]
+      const extraCost = jsonMapData.extraCost[y][x]
       const walkable = jsonMapData.walkable[y][x]
       if (extraCost == 0) {
         grid.set(x, y, new Tile())

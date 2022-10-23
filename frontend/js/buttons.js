@@ -9,9 +9,10 @@ const btnGrass = document.getElementById('btn-grass')
 const btnWater = document.getElementById('btn-water')
 
 btnReset.addEventListener('click', () => {
+  // reset grid
   for (let y = 0; y < 10; ++y) {
     for (let x = 0; x < 10; ++x) {
-      jsonMapData.extra_cost[y][x] = 0
+      jsonMapData.extraCost[y][x] = 0
       jsonMapData.walkable[y][x] = true
       grid.forEach((x, y) => {
         if (['starting', 'destination'].includes(grid.data[y][x].type)) {
@@ -21,6 +22,7 @@ btnReset.addEventListener('click', () => {
       })
     }
   }
+  // reset path
   path.forEach((x, y) => {
     path.data[y][x] = false
   })
@@ -30,34 +32,24 @@ btnReset.addEventListener('click', () => {
 btnFindPath.addEventListener('click', () => {
   postMapJson(() => {
     getPathJson(() => {
-      // reset all
+      // reset path
       path.forEach((x, y) => {
         path.data[y][x] = false
       })
-      // set fetched data
-      for (let p of jsonPathData) {
-        path.data[p.y][p.x] = true
+      if (jsonPathData.length == 0) {
+        alert('there is no path!')
+      } else {
+        // apply fetched path
+        for (let p of jsonPathData) {
+          path.data[p.y][p.x] = true
+        }
       }
     })
   })
 })
 
-btnStarting.addEventListener('click', () => {
-  paintMode = 'starting'
-})
-
-btnDestination.addEventListener('click', () => {
-  paintMode = 'destination'
-})
-
-btnWall.addEventListener('click', () => {
-  paintMode = 'wall'
-})
-
-btnGrass.addEventListener('click', () => {
-  paintMode = 'grass'
-})
-
-btnWater.addEventListener('click', () => {
-  paintMode = 'water'
-})
+btnStarting.addEventListener('click', () => { paintMode = 'starting' })
+btnDestination.addEventListener('click', () => { paintMode = 'destination' })
+btnWall.addEventListener('click', () => { paintMode = 'wall' })
+btnGrass.addEventListener('click', () => { paintMode = 'grass' })
+btnWater.addEventListener('click', () => { paintMode = 'water' })

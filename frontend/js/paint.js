@@ -1,6 +1,6 @@
 function onErase(x, y) {
   grid.set(x, y, new Tile())
-  jsonMapData.extra_cost[y][x] = 0
+  jsonMapData.extraCost[y][x] = 0
   jsonMapData.walkable[y][x] = true
 }
 
@@ -28,11 +28,11 @@ function onPaint(x, y) {
       break
     case 'grass':
       grid.set(x, y, new Tile('grass'))
-      jsonMapData.extra_cost[y][x] = 20
+      jsonMapData.extraCost[y][x] = 20
       break
     case 'water':
       grid.set(x, y, new Tile('water'))
-      jsonMapData.extra_cost[y][x] = 50
+      jsonMapData.extraCost[y][x] = 50
       break
     default:
       console.error('unknown paint mode: ' + paintMode)

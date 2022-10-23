@@ -120,49 +120,56 @@ class Tile {
   }
 }
 
-const path = new Grid(10, 10, false, {
-  gap: 4,
-  tileColor: (...[, , ]) => {
-    return 'rgba(0, 0, 0, 0.0)'
-  },
-  tileText: (...[, , tile]) => {
-    switch (tile) {
-      case true:
-        return '🐾'
-      default:
-        return ''
-    }
-  },
-})
+let grid = null
+let path = null
 
-const grid = new Grid(10, 10, new Tile(), {
-  gap: 4,
-  tileColor: (...[, , tile]) => {
-    switch (tile.type) {
-      case 'grass':
-        return '#86d72f'
-      case 'water':
-        return '#00a6ed'
-      default:
-        return '#e8e8e8'
-    }
-  },
-  tileText: (...[, , tile]) => {
-    switch (tile.type) {
-      case '':
-        return ''
-      case 'starting':
-        return '🤖'
-      case 'destination':
-        return '🚩'
-      case 'wall':
-        return '🧱'
-      case 'grass':
-        return ''
-      case 'water':
-        return ''
-      default:
-        return '?'
-    }
-  },
-})
+const initPath = (width, height) => {
+  path = new Grid(width, height, false, {
+    gap: 4,
+    tileColor: (...[, , ]) => {
+      return 'rgba(0, 0, 0, 0.0)'
+    },
+    tileText: (...[, , tile]) => {
+      switch (tile) {
+        case true:
+          return '🐾'
+        default:
+          return ''
+      }
+    },
+  })
+}
+
+const initGrid = (width, height) => {
+  grid = new Grid(width, height, new Tile(), {
+    gap: 4,
+    tileColor: (...[, , tile]) => {
+      switch (tile.type) {
+        case 'grass':
+          return '#86d72f'
+        case 'water':
+          return '#00a6ed'
+        default:
+          return '#e8e8e8'
+      }
+    },
+    tileText: (...[, , tile]) => {
+      switch (tile.type) {
+        case '':
+          return ''
+        case 'starting':
+          return '🤖'
+        case 'destination':
+          return '🚩'
+        case 'wall':
+          return '🧱'
+        case 'grass':
+          return ''
+        case 'water':
+          return ''
+        default:
+          return '?'
+      }
+    },
+  })
+}
