@@ -148,10 +148,10 @@ inline std::vector<Point> PathFinder::dijkstra(Point start, Point dest) {
         neighbor.cost = new_cost;
         neighbor.parent_pos = current_node.pos;
         node_lookup[neighbor.pos] = neighbor;
-      }
 
-      // push to priority queue
-      pq.push(neighbor);
+        // push to priority queue
+        pq.push(neighbor);
+      }
     }
     #undef neighbor
     #undef weight
