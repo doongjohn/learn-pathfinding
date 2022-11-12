@@ -1,23 +1,23 @@
 #pragma once
 
-#include <vector>
+#include <iostream>
 #include <queue>
-#include <unordered_map>
-#include <unordered_set>
+#include <vector>
 
-#include "structs.hpp"
 #include "game_map.hpp"
+#include "structs.hpp"
 
 class PathFinder {
 private:
   GameMap &game_map;
+  static constexpr const int straight_path_cost = 10;
+  static constexpr const int diagonal_path_cost = 14;
 
 public:
   ~PathFinder() {}
   PathFinder(GameMap &map) : game_map(map) {}
 
   bool is_in_bounds(Point pos);
-  Neighbors get_neighbors(Point pos);
 
   std::vector<Point> dijkstra(Point start, Point dest);
 
@@ -25,56 +25,21 @@ public:
 };
 
 inline bool PathFinder::is_in_bounds(Point pos) {
-  return
-    pos.x >= 0 &&
-    pos.y >= 0 &&
-    pos.x < game_map.width &&
-    pos.y < game_map.height;
+  return pos.x >= 0 && pos.y >= 0 && pos.x < game_map.width && pos.y < game_map.height;
 }
 
-inline Neighbors PathFinder::get_neighbors(Point pos) {
-  Neighbors result;
-
-  constexpr const int straight_path_cost = 10;
-  constexpr const int diagonal_path_cost = 14;
-
-  result.nodes[0] = Node(pos.x + 1, pos.y);
-  result.nodes[1] = Node(pos.x - 1, pos.y);
-  result.nodes[2] = Node(pos.x, pos.y + 1);
-  result.nodes[3] = Node(pos.x, pos.y - 1);
-  for (int i = 0; i <= 3; ++i) {
-    result.weights[i] = straight_path_cost;
-  }
-
-  result.nodes[4] = Node(-1, -1);
-  result.nodes[5] = Node(-1, -1);
-  result.nodes[6] = Node(-1, -1);
-  result.nodes[7] = Node(-1, -1);
-
-  // check blocked corner
-  if ((is_in_bounds(result.nodes[0].pos) && game_map.get_walkable(result.nodes[0].pos)) ||
-      (is_in_bounds(result.nodes[2].pos) && game_map.get_walkable(result.nodes[2].pos))) {
-    result.nodes[4] = Node(pos.x + 1, pos.y + 1);
-  }
-  if ((is_in_bounds(result.nodes[0].pos) && game_map.get_walkable(result.nodes[0].pos)) ||
-      (is_in_bounds(result.nodes[3].pos) && game_map.get_walkable(result.nodes[3].pos))) {
-    result.nodes[5] = Node(pos.x + 1, pos.y - 1);
-  }
-  if ((is_in_bounds(result.nodes[1].pos) && game_map.get_walkable(result.nodes[1].pos)) ||
-      (is_in_bounds(result.nodes[2].pos) && game_map.get_walkable(result.nodes[2].pos))) {
-    result.nodes[6] = Node(pos.x - 1, pos.y + 1);
-  }
-  if ((is_in_bounds(result.nodes[1].pos) && game_map.get_walkable(result.nodes[1].pos)) ||
-      (is_in_bounds(result.nodes[3].pos) && game_map.get_walkable(result.nodes[3].pos))) {
-    result.nodes[7] = Node(pos.x - 1, pos.y - 1);
-  }
-
-  for (int i = 4; i <= 7; ++i) {
-    result.weights[i] = diagonal_path_cost;
-  }
-
-  return result;
-}
+const std::vector<Point> neighbor_offsets{
+    // straight
+    {+1, +0},
+    {-1, +0},
+    {+0, +1},
+    {+0, -1},
+    // diagonal
+    {+1, +1},
+    {-1, +1},
+    {+1, -1},
+    {-1, -1},
+};
 
 inline std::vector<Point> PathFinder::dijkstra(Point start, Point dest) {
   // check out of bounds
@@ -82,79 +47,89 @@ inline std::vector<Point> PathFinder::dijkstra(Point start, Point dest) {
     return {};
   }
 
+  // swap start and dest
+  {
+    Point tmp = start;
+    start = dest;
+    dest = tmp;
+  }
+
   std::vector<Point> path; // final path
-  std::unordered_map<Point, Node> node_lookup; // store explored node data
+
+  Array2D<Node> nodes(game_map.width, game_map.height);
+  nodes.for_each([&](int x, int y) {
+    Point pos{x, y};
+    nodes.at(pos).pos = pos;
+  });
+  nodes.at(start).cost = 0;
+
   Array2D<bool> visited(game_map.width, game_map.height);
   visited.set_all(false);
 
-  std::priority_queue<Node, std::vector<Node>, std::greater<Node>> pq;
-  pq.push(Node(start.x, start.y));
+  std::priority_queue<NodeRef, std::vector<NodeRef>, std::greater<NodeRef>> pq;
+  pq.push(NodeRef(nodes.at_ptr(start)));
 
   while (!pq.empty()) {
     // get next node
-    Node current_node = pq.top();
+    Node &current_node = *pq.top().ptr;
     pq.pop();
 
     // update visited
     visited.at(current_node.pos) = true;
 
-    // update node_lookup
-    node_lookup[current_node.pos] = current_node;
-
     // destination found
     if (current_node.pos == dest) {
       // backtrace parent to find a path
-      Node parent = current_node;
+      Node &node = current_node;
       while (true) {
-        path.push_back(parent.pos);
-        parent = node_lookup[parent.parent_pos];
-        if (parent.pos == start) {
-          path.push_back(parent.pos); // add starting point
+        path.push_back(node.pos);
+        if (node.pos == start) {
+          path.push_back(node.pos); // add starting point
           break;
         }
+        node = nodes.at(node.parent_pos);
       }
-      // reverse it to make the path start from the starting point
-      std::reverse(path.begin(), path.end());
       return path;
     }
 
     // update neighbors
-    auto neighbors = get_neighbors(current_node.pos);
-    for (int i = 0; i < neighbors.nodes.size(); ++i) {
-      #define neighbor neighbors.nodes[i]
-      #define weight neighbors.weights[i]
+    for (int i = 0; i < 8; ++i) {
+      const Point offset = neighbor_offsets[i];
+      const Point neighbor_pos{
+        current_node.pos.x + offset.x,
+        current_node.pos.y + offset.y,
+      };
 
       // check array bounds
-      if (!is_in_bounds(neighbor.pos)) {
+      if (!is_in_bounds(neighbor_pos)) {
         continue;
       }
 
       // check walkable
-      if (!game_map.get_walkable(neighbor.pos)) {
+      if (!game_map.get_walkable(neighbor_pos)) {
         continue;
       }
 
       // skip visited
-      if (visited.at(neighbor.pos)) {
+      if (visited.at(neighbor_pos)) {
         continue;
       }
 
+      Node &neighbor = nodes.at(neighbor_pos);
+      const int weight = i < 4 ? straight_path_cost : diagonal_path_cost;
+
       // Understanding Edge Relaxation for Dijkstra’s Algorithm and Bellman-Ford Algorithm:
       // https://towardsdatascience.com/algorithm-shortest-paths-1d8fa3f50769
-      const bool node_first_time = node_lookup.find(neighbor.pos) == node_lookup.end();
       const int new_cost = current_node.cost + weight + game_map.get_extra_cost(neighbor.pos);
-      if (node_first_time || node_lookup[neighbor.pos].cost > new_cost) {
+      if (neighbor.cost > new_cost) {
         // update cost and parent (edge relaxation)
         neighbor.cost = new_cost;
         neighbor.parent_pos = current_node.pos;
-        node_lookup[neighbor.pos] = neighbor;
 
         // push to priority queue
-        pq.push(neighbor);
+        pq.push(NodeRef(nodes.at_ptr(neighbor_pos)));
       }
     }
-    #undef neighbor
-    #undef weight
   }
 
   return {};

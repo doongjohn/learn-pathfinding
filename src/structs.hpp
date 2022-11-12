@@ -1,9 +1,9 @@
 #pragma once
 
 #include <array>
+#include <functional>
 #include <memory>
 #include <string>
-#include <functional>
 
 #include "json.hpp"
 
@@ -37,21 +37,20 @@ struct Point {
     this->y = other.y;
   }
 
-  friend bool operator== (const Point &a, const Point &b) {
+  friend bool operator==(const Point &a, const Point &b) {
     return a.x == b.x && a.y == b.y;
   }
-  friend bool operator!= (const Point &a, const Point &b) {
+  friend bool operator!=(const Point &a, const Point &b) {
     return a.x != b.x || a.y != b.y;
   }
 };
 
-namespace std {
-template <> struct hash<Point> {
+template <>
+struct std::hash<Point> {
   auto operator()(const Point &value) const -> size_t {
     return hash<std::string>()(string_format("%d,%d", value.x, value.y));
   }
 };
-} // namespace std
 
 static void to_json(nlohmann::json &j, const Point &value) {
   j = nlohmann::json{{"x", value.x}, {"y", value.y}};
@@ -68,40 +67,55 @@ struct Node {
 
   Node() : pos(-1, -1), parent_pos(-1, -1), cost(INT32_MAX) {}
   Node(int x, int y) : pos(x, y), parent_pos(-1, -1), cost(INT32_MAX) {}
-  Node(const Node &other)
-    : pos(other.pos),
-      parent_pos(other.parent_pos) {
+  Node(const Node &other) : pos(other.pos), parent_pos(other.parent_pos) {
     this->cost = other.cost;
   }
 
-  friend bool operator > (const Node &a, const Node &b) {
+  friend bool operator>(const Node &a, const Node &b) {
     return a.cost > b.cost;
   }
-  friend bool operator < (const Node &a, const Node &b) {
+  friend bool operator<(const Node &a, const Node &b) {
     return a.cost < b.cost;
   }
-  friend bool operator >= (const Node &a, const Node &b) {
+  friend bool operator>=(const Node &a, const Node &b) {
     return a.cost >= b.cost;
   }
-  friend bool operator <= (const Node &a, const Node &b) {
+  friend bool operator<=(const Node &a, const Node &b) {
     return a.cost <= b.cost;
   }
 };
 
-struct Neighbors {
-  std::array<Node, 8> nodes;
-  std::array<int, 8> weights;
+struct NodeRef {
+  Node *ptr;
+
+  NodeRef(Node *ptr) : ptr(ptr) {}
+
+  inline Node &get() const {
+    return *ptr;
+  }
+
+  friend bool operator>(const NodeRef &a, const NodeRef &b) {
+    return a.get().cost > b.get().cost;
+  }
+  friend bool operator<(const NodeRef &a, const NodeRef &b) {
+    return a.get().cost < b.get().cost;
+  }
+  friend bool operator>=(const NodeRef &a, const NodeRef &b) {
+    return a.get().cost >= b.get().cost;
+  }
+  friend bool operator<=(const NodeRef &a, const NodeRef &b) {
+    return a.get().cost <= b.get().cost;
+  }
 };
 
-template<typename T>
+template <typename T>
 struct Array2D {
   const int width;
   const int height;
   T **data;
 
-  Array2D(int width, int height)
-    : width(width), height(height) {
-    data = new T*[height];
+  Array2D(int width, int height) : width(width), height(height) {
+    data = new T *[height];
     for (int h = 0; h < height; ++h) {
       data[h] = new T[width];
     }
@@ -118,6 +132,17 @@ struct Array2D {
   }
   T &at(Point pos) {
     return data[pos.y][pos.x];
+  }
+  T *at_ptr(Point pos) {
+    return &data[pos.y][pos.x];
+  }
+
+  void for_each(std::function<void(int x, int y)> cb) {
+    for (int y = 0; y < height; ++y) {
+      for (int x = 0; x < width; ++x) {
+        cb(x, y);
+      }
+    }
   }
 
   void set_all(T value) {

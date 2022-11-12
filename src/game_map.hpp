@@ -22,6 +22,7 @@ public:
 
     for (int y = 0; y < height; ++y) {
       for (int x = 0; x < width; ++x) {
+        extra_cost[y][x] = 0;
         walkable[y][x] = true;
       }
     }
