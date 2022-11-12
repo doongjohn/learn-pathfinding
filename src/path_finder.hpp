@@ -29,16 +29,16 @@ inline bool PathFinder::is_in_bounds(Point pos) {
 }
 
 const std::vector<Point> neighbor_offsets{
-    // straight
-    {+1, +0},
-    {-1, +0},
-    {+0, +1},
-    {+0, -1},
-    // diagonal
-    {+1, +1},
-    {-1, +1},
-    {+1, -1},
-    {-1, -1},
+  // straight
+  {+1, +0},
+  {-1, +0},
+  {+0, +1},
+  {+0, -1},
+  // diagonal
+  {+1, +1},
+  {-1, +1},
+  {+1, -1},
+  {-1, -1},
 };
 
 inline std::vector<Point> PathFinder::dijkstra(Point start, Point dest) {
