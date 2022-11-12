@@ -38,6 +38,4 @@ public:
 
   int get_extra_cost(Point pos) { return extra_cost[pos.y][pos.x]; }
   bool get_walkable(Point pos) { return walkable[pos.y][pos.x]; }
-
-  void draw();
 };
