@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <iostream>
 #include <queue>
 #include <vector>
@@ -10,36 +11,22 @@
 class PathFinder {
 private:
   GameMap &game_map;
+
+public:
   static constexpr const int straight_path_cost = 10;
   static constexpr const int diagonal_path_cost = 14;
 
-public:
   ~PathFinder() {}
   PathFinder(GameMap &map) : game_map(map) {}
 
   bool is_in_bounds(Point pos);
 
   std::vector<Point> dijkstra(Point start, Point dest);
-
-  void draw_path(std::vector<Point> path);
 };
 
 inline bool PathFinder::is_in_bounds(Point pos) {
   return pos.x >= 0 && pos.y >= 0 && pos.x < game_map.width && pos.y < game_map.height;
 }
-
-const std::vector<Point> neighbor_offsets{
-  // straight
-  {+1, +0},
-  {-1, +0},
-  {+0, +1},
-  {+0, -1},
-  // diagonal
-  {+1, +1},
-  {-1, +1},
-  {+1, -1},
-  {-1, -1},
-};
 
 inline std::vector<Point> PathFinder::dijkstra(Point start, Point dest) {
   // check out of bounds
@@ -61,6 +48,8 @@ inline std::vector<Point> PathFinder::dijkstra(Point start, Point dest) {
     Point pos{x, y};
     nodes.at(pos).pos = pos;
   });
+
+  // starting point has 0 cost
   nodes.at(start).cost = 0;
 
   Array2D<bool> visited(game_map.width, game_map.height);
@@ -71,7 +60,7 @@ inline std::vector<Point> PathFinder::dijkstra(Point start, Point dest) {
 
   while (!pq.empty()) {
     // get next node
-    Node &current_node = *pq.top().ptr;
+    Node &current_node = pq.top().get();
     pq.pop();
 
     // update visited
@@ -92,7 +81,20 @@ inline std::vector<Point> PathFinder::dijkstra(Point start, Point dest) {
       return path;
     }
 
-    // update neighbors
+    const std::array<Point, 8> neighbor_offsets{{
+      // straight
+      {+1, +0},
+      {-1, +0},
+      {+0, +1},
+      {+0, -1},
+      // diagonal
+      {+1, +1},
+      {-1, +1},
+      {+1, -1},
+      {-1, -1},
+    }};
+
+    // loop neighbors
     for (int i = 0; i < 8; ++i) {
       const Point offset = neighbor_offsets[i];
       const Point neighbor_pos{
@@ -105,13 +107,13 @@ inline std::vector<Point> PathFinder::dijkstra(Point start, Point dest) {
         continue;
       }
 
-      // check walkable
-      if (!game_map.get_walkable(neighbor_pos)) {
+      // skip visited
+      if (visited.at(neighbor_pos)) {
         continue;
       }
 
-      // skip visited
-      if (visited.at(neighbor_pos)) {
+      // check walkable
+      if (!game_map.get_walkable(neighbor_pos)) {
         continue;
       }
 
@@ -121,29 +123,18 @@ inline std::vector<Point> PathFinder::dijkstra(Point start, Point dest) {
       // Understanding Edge Relaxation for Dijkstra’s Algorithm and Bellman-Ford Algorithm:
       // https://towardsdatascience.com/algorithm-shortest-paths-1d8fa3f50769
       const int new_cost = current_node.cost + weight + game_map.get_extra_cost(neighbor.pos);
+
       if (neighbor.cost > new_cost) {
         // update cost and parent (edge relaxation)
         neighbor.cost = new_cost;
         neighbor.parent_pos = current_node.pos;
 
         // push to priority queue
+        // NOTE: ideally I should check if the node is already in the queue
         pq.push(NodeRef(nodes.at_ptr(neighbor_pos)));
       }
     }
   }
 
   return {};
-}
-
-inline void PathFinder::draw_path(std::vector<Point> path) {
-  for (int y = 0; y < game_map.height; ++y) {
-    for (int x = 0; x < game_map.width; ++x) {
-      if (std::find(path.begin(), path.end(), Point(x, y)) != path.end()) {
-        fputs("* ", stdout);
-      } else {
-        fputs(". ", stdout);
-      }
-    }
-    puts("");
-  }
 }
